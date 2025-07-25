@@ -107,7 +107,7 @@ function Alert({ message, type = 'success', onConfirm, onCancel }) {
   );
 }
 
-function ColorSchemeSelector() {
+function ColorSchemeSelector({ progress = 0 }) {
   const colorSchemes = [
     { name: 'blue', color: '#3b82f6' },
     { name: 'green', color: '#10b981' },
@@ -158,17 +158,14 @@ function TodoList() {
   const [inputValue, setInputValue] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
   const [dueDate, setDueDate] = useState('');
-<<<<<<< HEAD
   const [alert, setAlert] = useState(null);
   const [pendingToggleTodo, setPendingToggleTodo] = useState(null);
-=======
   const [tag, setTag] = useState('');
   const [recurrence, setRecurrence] = useState('none');
   const [filter, setFilter] = useState('all');
   const [sortMode, setSortMode] = useState('created');
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ text: '', dueDate: '', tag: '', recurrence: 'none' });
->>>>>>> 106ec04f3069ce1025bb6c10a8ed37571da492df
 
   useEffect(() => {
     const stored = localStorage.getItem(`todos_${user || 'guest'}`);
@@ -238,15 +235,33 @@ function TodoList() {
   };
 
   const toggleTodo = (id) => {
-<<<<<<< HEAD
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
 
     // If the todo is already completed, allow unchecking without any prompts
     if (todo.completed) {
-      setTodos(todos.map(todo => 
-        todo.id === id ? { ...todo, completed: false } : todo
-      ));
+      setTodos(todos.map(t => {
+        if (t.id === id) {
+          const updated = { ...t, completed: false };
+          if (t.recurrence !== 'none' && t.dueDate) {
+            const next = new Date(t.dueDate);
+            if (t.recurrence === 'daily') next.setDate(next.getDate() + 1);
+            if (t.recurrence === 'weekly') next.setDate(next.getDate() + 7);
+            if (t.recurrence === 'monthly') next.setMonth(next.getMonth() + 1);
+            const newTodo = {
+              ...t,
+              id: crypto.randomUUID(),
+              completed: false,
+              dueDate: next.toISOString().slice(0, 10),
+              createdAt: new Date().toISOString(),
+              notified: false
+            };
+            return [updated, newTodo];
+          }
+          return updated;
+        }
+        return t;
+      }).flat());
       return;
     }
 
@@ -269,21 +284,37 @@ function TodoList() {
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
 
-    setTodos(todos.map(todo => {
-      if (todo.id === id) {
-        const updatedTodo = { ...todo, completed: !todo.completed };
+    setTodos(todos.map(t => {
+      if (t.id === id) {
+        const updatedTodo = { ...t, completed: !t.completed };
         // When marking as complete, also complete all subtasks
-        if (!todo.completed) {
-          updatedTodo.subtasks = todo.subtasks.map(subtask => ({
+        if (!t.completed) {
+          updatedTodo.subtasks = t.subtasks.map(subtask => ({
             ...subtask,
             completed: true
           }));
+          // Handle recurrence for completed tasks
+          if (t.recurrence !== 'none' && t.dueDate) {
+            const next = new Date(t.dueDate);
+            if (t.recurrence === 'daily') next.setDate(next.getDate() + 1);
+            if (t.recurrence === 'weekly') next.setDate(next.getDate() + 7);
+            if (t.recurrence === 'monthly') next.setMonth(next.getMonth() + 1);
+            const newTodo = {
+              ...t,
+              id: crypto.randomUUID(),
+              completed: false,
+              dueDate: next.toISOString().slice(0, 10),
+              createdAt: new Date().toISOString(),
+              notified: false
+            };
+            return [updatedTodo, newTodo];
+          }
         }
         // When unmarking (marking as incomplete), don't change subtask states
         return updatedTodo;
       }
-      return todo;
-    }));
+      return t;
+    }).flat());
     
     // Only show success message when marking as complete
     if (!todo.completed) {
@@ -307,30 +338,6 @@ function TodoList() {
   const handleAlertCancel = () => {
     setAlert(null);
     setPendingToggleTodo(null);
-=======
-    setTodos(todos.map(todo => {
-      if (todo.id === id) {
-        const updated = { ...todo, completed: !todo.completed };
-        if (!todo.completed && todo.recurrence !== 'none' && todo.dueDate) {
-          const next = new Date(todo.dueDate);
-          if (todo.recurrence === 'daily') next.setDate(next.getDate() + 1);
-          if (todo.recurrence === 'weekly') next.setDate(next.getDate() + 7);
-          if (todo.recurrence === 'monthly') next.setMonth(next.getMonth() + 1);
-          const newTodo = {
-            ...todo,
-            id: crypto.randomUUID(),
-            completed: false,
-            dueDate: next.toISOString().slice(0, 10),
-            createdAt: new Date().toISOString(),
-            notified: false
-          };
-          return [updated, newTodo];
-        }
-        return updated;
-      }
-      return todo;
-    }).flat());
->>>>>>> 106ec04f3069ce1025bb6c10a8ed37571da492df
   };
 
   const deleteTodo = (id) => {
@@ -441,7 +448,6 @@ function TodoList() {
 
   return (
     <div className="todo-container">
-<<<<<<< HEAD
       {alert && (
         <Alert
           message={alert.message}
@@ -455,8 +461,6 @@ function TodoList() {
         <span className="title-text">My Beautiful Todo List</span>
         <span className="title-icon">✨</span>
       </h1>
-=======
-      <h1>Todo List</h1>
 
       {!user ? (
         <form className="signin-form" onSubmit={(e) => { e.preventDefault(); if (usernameInput.trim()) { setUser(usernameInput.trim()); setUsernameInput(''); } }}>
@@ -469,7 +473,6 @@ function TodoList() {
           <button className="delete-button" onClick={() => { setUser(''); }}>Sign Out</button>
         </div>
       )}
->>>>>>> 106ec04f3069ce1025bb6c10a8ed37571da492df
       
       <form onSubmit={handleSubmit} className="todo-form">
         <input
@@ -479,30 +482,32 @@ function TodoList() {
           placeholder="Add a new todo..."
           className="todo-input"
         />
-        <input
-          type="date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          className="date-input"
-        />
-        <input
-          type="text"
-          value={tag}
-          onChange={(e) => setTag(e.target.value)}
-          placeholder="Tag"
-          className="todo-input"
-        />
-        <select
-          value={recurrence}
-          onChange={(e) => setRecurrence(e.target.value)}
-          className="date-input"
-        >
-          <option value="none">Once</option>
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
-        <button type="submit" className="add-button">Add</button>
+        <div className="todo-form-fields">
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="date-input"
+          />
+          <input
+            type="text"
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+            placeholder="Tag"
+            className="todo-input"
+          />
+          <select
+            value={recurrence}
+            onChange={(e) => setRecurrence(e.target.value)}
+            className="date-input"
+          >
+            <option value="none">Once</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <button type="submit" className="add-button">Add</button>
+        </div>
       </form>
 
       <div className="filter-bar">
@@ -611,7 +616,7 @@ function TodoList() {
         </ul>
       )}
 
-      <ColorSchemeSelector />
+      <ColorSchemeSelector progress={progress} />
     </div>
   );
 }

@@ -144,7 +144,7 @@ body {
 
 .todo-container {
   width: 90%;
-  max-width: 480px;
+  max-width: 520px;
   margin: 4rem auto;
   padding: 2.5rem;
   background: rgba(255, 255, 255, 0.1);
@@ -157,21 +157,21 @@ body {
 
 @media (min-width: 768px) {
   .todo-container {
-    max-width: 600px;
+    max-width: 680px;
     padding: 3rem;
   }
 }
 
 @media (min-width: 1024px) {
   .todo-container {
-    max-width: 700px;
+    max-width: 800px;
     padding: 3.5rem;
   }
 }
 
 @media (min-width: 1280px) {
   .todo-container {
-    max-width: 800px;
+    max-width: 900px;
     padding: 4rem;
   }
 }
@@ -191,14 +191,41 @@ body {
 
 .todo-form {
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 2.5rem;
-  flex-direction: column;
 }
 
-@media (min-width: 640px) {
-  .todo-form {
-    flex-direction: row;
+.todo-form-fields {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .todo-form-fields {
+    flex-direction: column;
+  }
+}
+
+/* Ensure text input is full width and large */
+.todo-input {
+  flex: 1;
+  min-height: 48px;
+  width: 100%;
+}
+
+.date-input,
+select {
+  min-width: 140px;
+  min-height: 48px;
+}
+
+@media (max-width: 640px) {
+  .date-input,
+  select {
+    min-width: 100%;
+    width: 100%;
   }
 }
 
