@@ -458,7 +458,7 @@ function TodoList() {
       )}
       <h1 className="app-title">
         <span className="title-icon">✨</span>
-        <span className="title-text">My Beautiful Todo List</span>
+        <span className="title-text">Todo List</span>
         <span className="title-icon">✨</span>
       </h1>
 
