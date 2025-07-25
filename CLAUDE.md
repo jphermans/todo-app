@@ -35,3 +35,6 @@ React-based todo application built with Vite, featuring dark/light mode theming,
 - Delete todos
 - Visual indicators for overdue and due-today items
 - Persistent storage using browser localStorage
+
+# Github Actions
+- deploy automaticly when git push
