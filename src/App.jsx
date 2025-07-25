@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import TodoList from './components/TodoList'
+import MouseTrail from './components/MouseTrail'
 
 function App() {
   const [theme, setTheme] = useState(() => {
@@ -73,13 +74,14 @@ function App() {
         '--mouse-y': `${mousePosition.y}px` 
       }}
     >
-      <button 
-        onClick={() => setTheme(getNextTheme())} 
+      <button
+        onClick={() => setTheme(getNextTheme())}
         className="theme-toggle"
         aria-label={`Current theme: ${theme}. Click to change.`}
       >
         {getThemeIcon()}
       </button>
+      <MouseTrail />
       <TodoList />
     </div>
   )
