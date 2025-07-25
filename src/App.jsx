@@ -10,7 +10,8 @@ function App() {
     return 'system'
   })
 
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -23,6 +24,17 @@ function App() {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -67,13 +79,18 @@ function App() {
   }
 
   return (
-    <div 
-      className="app" 
-      style={{ 
-        '--mouse-x': `${mousePosition.x}px`, 
-        '--mouse-y': `${mousePosition.y}px` 
+    <div
+      className="app"
+      style={{
+        '--mouse-x': `${mousePosition.x}px`,
+        '--mouse-y': `${mousePosition.y}px`
       }}
     >
+      {!isOnline && (
+        <div className="offline-banner">
+          Offline - changes will sync when connection is restored
+        </div>
+      )}
       <button
         onClick={() => setTheme(getNextTheme())}
         className="theme-toggle"

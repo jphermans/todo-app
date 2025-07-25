@@ -17,11 +17,13 @@
 
 <div align="center">
 
-| 🎨 **Theme System** | ✅ **Todo Management** | 🔔 **Smart Notifications** | 💾 **Persistent Storage** | 📊 **Progress Tracking** | 🔍 **Filtering/Sorting** | 🏷️ **Tags** | ♻️ **Recurring Tasks** | 👤 **Account Sync** |
-|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| Automatic dark/light mode switching with manual override | Add, edit, complete and delete todos with due dates | Browser notifications for due tasks | LocalStorage per user account | Percentage bar of completed tasks | Filter by status and sort by date | Organize todos with optional tags | Daily, weekly or monthly recurrence | Optional sign in to sync tasks locally |
+| 🎨 **Theme System** | ✅ **Todo Management** | 🔔 **Smart Notifications** | 💾 **Persistent Storage** | 📊 **Progress Tracking** | 🔍 **Filtering/Sorting** | 🏷️ **Tags** | ♻️ **Recurring Tasks** | 👤 **Account Sync** | 📴 **Offline Mode** |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| Automatic dark/light mode switching with manual override | Add, edit, complete and delete todos with due dates | Browser notifications for due tasks | LocalStorage per user account | Percentage bar of completed tasks | Filter by status and sort by date | Organize todos with optional tags | Daily, weekly or monthly recurrence | Optional sign in to sync tasks locally | Use the app even when offline |
 
 </div>
+
+This release introduces a basic service worker to cache the application shell so your tasks remain accessible without a network connection.
 
 ---
 
