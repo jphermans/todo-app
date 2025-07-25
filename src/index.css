@@ -108,7 +108,7 @@ body {
   position: relative;
   padding: 2rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(59, 130, 246, 0.05) 100%);
+  background: linear-gradient(135deg, var(--bg-color) 0%, var(--hover-bg) 50%, var(--card-bg) 100%);
 }
 
 .theme-toggle {
@@ -952,6 +952,19 @@ select {
   display: flex;
   gap: 0.5rem;
   margin: 1rem 0;
+}
+
+@media (max-width: 640px) {
+  .filter-bar {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin: 0.75rem 0;
+  }
+  
+  .filter-bar select {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
 }
 
 .signin-form,
