@@ -109,53 +109,143 @@ function ColorSchemeSelector() {
           />
         ))}
       </div>
+
+      <div className="progress-wrapper">
+        <div className="progress-bar" style={{ width: `${progress}%` }} />
+        <span className="progress-label">{progress}% complete</span>
+      </div>
     </div>
   );
 }
 
 function TodoList() {
-  const [todos, setTodos] = useState(() => {
-    const savedTodos = localStorage.getItem('todos');
-    return savedTodos ? JSON.parse(savedTodos) : [];
-  });
+  const [user, setUser] = useState(() => localStorage.getItem('username') || '');
+  const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [tag, setTag] = useState('');
+  const [recurrence, setRecurrence] = useState('none');
+  const [filter, setFilter] = useState('all');
+  const [sortMode, setSortMode] = useState('created');
+  const [editingId, setEditingId] = useState(null);
+  const [editValues, setEditValues] = useState({ text: '', dueDate: '', tag: '', recurrence: 'none' });
 
   useEffect(() => {
-    localStorage.setItem('todos', JSON.stringify(todos));
-  }, [todos]);
+    const stored = localStorage.getItem(`todos_${user || 'guest'}`);
+    setTodos(stored ? JSON.parse(stored) : []);
+  }, [user]);
+
+  useEffect(() => {
+    localStorage.setItem(`todos_${user || 'guest'}`,
+      JSON.stringify(todos));
+  }, [todos, user]);
 
   useEffect(() => {
     const savedColorScheme = localStorage.getItem('colorScheme') || 'blue';
     document.documentElement.setAttribute('data-color-scheme', savedColorScheme);
   }, []);
 
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (Notification.permission !== 'granted') return;
+      setTodos(tds =>
+        tds.map(t => {
+          if (!t.completed && t.dueDate && !t.notified) {
+            const time = new Date(t.dueDate) - new Date();
+            if (time > 0 && time < 60000) {
+              new Notification('Todo Due', { body: t.text });
+              return { ...t, notified: true };
+            }
+          }
+          return t;
+        })
+      );
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (user) localStorage.setItem('username', user);
+  }, [user]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
-    
+
     const newTodo = {
       id: crypto.randomUUID(),
       text: inputValue,
       completed: false,
       dueDate: dueDate || null,
       createdAt: new Date().toISOString(),
-      subtasks: []
+      subtasks: [],
+      tag: tag || '',
+      recurrence,
+      notified: false
     };
-    
+
     setTodos([...todos, newTodo]);
     setInputValue('');
     setDueDate('');
+    setTag('');
+    setRecurrence('none');
   };
 
   const toggleTodo = (id) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
+    setTodos(todos.map(todo => {
+      if (todo.id === id) {
+        const updated = { ...todo, completed: !todo.completed };
+        if (!todo.completed && todo.recurrence !== 'none' && todo.dueDate) {
+          const next = new Date(todo.dueDate);
+          if (todo.recurrence === 'daily') next.setDate(next.getDate() + 1);
+          if (todo.recurrence === 'weekly') next.setDate(next.getDate() + 7);
+          if (todo.recurrence === 'monthly') next.setMonth(next.getMonth() + 1);
+          const newTodo = {
+            ...todo,
+            id: crypto.randomUUID(),
+            completed: false,
+            dueDate: next.toISOString().slice(0, 10),
+            createdAt: new Date().toISOString(),
+            notified: false
+          };
+          return [updated, newTodo];
+        }
+        return updated;
+      }
+      return todo;
+    }).flat());
   };
 
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
+  };
+
+  const startEdit = (todo) => {
+    setEditingId(todo.id);
+    setEditValues({
+      text: todo.text,
+      dueDate: todo.dueDate || '',
+      tag: todo.tag || '',
+      recurrence: todo.recurrence || 'none'
+    });
+  };
+
+  const saveEdit = (id) => {
+    setTodos(todos.map(t =>
+      t.id === id ? { ...t, ...editValues } : t
+    ));
+    setEditingId(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
   };
 
   const addSubtask = (todoId, subtaskText) => {
@@ -223,9 +313,37 @@ function TodoList() {
     return today.toDateString() === due.toDateString();
   };
 
+  const filtered = todos.filter(t => {
+    if (filter === 'active') return !t.completed;
+    if (filter === 'completed') return t.completed;
+    return true;
+  });
+
+  const displayTodos = filtered.sort((a, b) => {
+    if (sortMode === 'due') {
+      return (a.dueDate || '').localeCompare(b.dueDate || '');
+    }
+    return new Date(a.createdAt) - new Date(b.createdAt);
+  });
+
+  const completedCount = todos.filter(t => t.completed).length;
+  const progress = todos.length ? Math.round((completedCount / todos.length) * 100) : 0;
+
   return (
     <div className="todo-container">
       <h1>Todo List</h1>
+
+      {!user ? (
+        <form className="signin-form" onSubmit={(e) => { e.preventDefault(); if (usernameInput.trim()) { setUser(usernameInput.trim()); setUsernameInput(''); } }}>
+          <input className="todo-input" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} placeholder="Enter your name" />
+          <button type="submit" className="add-button">Sign In</button>
+        </form>
+      ) : (
+        <div className="user-bar">
+          <span>Signed in as {user}</span>
+          <button className="delete-button" onClick={() => { setUser(''); }}>Sign Out</button>
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="todo-form">
         <input
@@ -241,8 +359,37 @@ function TodoList() {
           onChange={(e) => setDueDate(e.target.value)}
           className="date-input"
         />
+        <input
+          type="text"
+          value={tag}
+          onChange={(e) => setTag(e.target.value)}
+          placeholder="Tag"
+          className="todo-input"
+        />
+        <select
+          value={recurrence}
+          onChange={(e) => setRecurrence(e.target.value)}
+          className="date-input"
+        >
+          <option value="none">Once</option>
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
         <button type="submit" className="add-button">Add</button>
       </form>
+
+      <div className="filter-bar">
+        <select value={filter} onChange={(e) => setFilter(e.target.value)} className="date-input">
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="completed">Completed</option>
+        </select>
+        <select value={sortMode} onChange={(e) => setSortMode(e.target.value)} className="date-input">
+          <option value="created">Created</option>
+          <option value="due">Due Date</option>
+        </select>
+      </div>
 
       {todos.length === 0 ? (
         <div className="empty-state">
@@ -250,9 +397,9 @@ function TodoList() {
         </div>
       ) : (
         <ul className="todo-list">
-          {todos.map(todo => (
-            <li 
-              key={todo.id} 
+          {displayTodos.map(todo => (
+            <li
+              key={todo.id}
               className={`todo-item ${todo.completed ? 'completed' : ''} ${
                 isOverdue(todo.dueDate) ? 'overdue' : ''
               } ${isToday(todo.dueDate) ? 'due-today' : ''}`}
@@ -264,13 +411,60 @@ function TodoList() {
                 className="todo-checkbox"
               />
               <div className="todo-content">
-                <span className="todo-text">{todo.text}</span>
-                {todo.dueDate && (
-                  <span className="due-date">
-                    Due: {formatDate(todo.dueDate)}
-                  </span>
+                {editingId === todo.id ? (
+                  <>
+                    <input
+                      className="todo-input"
+                      value={editValues.text}
+                      onChange={(e) => setEditValues({ ...editValues, text: e.target.value })}
+                    />
+                    <input
+                      type="date"
+                      className="date-input"
+                      value={editValues.dueDate}
+                      onChange={(e) => setEditValues({ ...editValues, dueDate: e.target.value })}
+                    />
+                    <input
+                      className="todo-input"
+                      value={editValues.tag}
+                      onChange={(e) => setEditValues({ ...editValues, tag: e.target.value })}
+                      placeholder="Tag"
+                    />
+                    <select
+                      className="date-input"
+                      value={editValues.recurrence}
+                      onChange={(e) => setEditValues({ ...editValues, recurrence: e.target.value })}
+                    >
+                      <option value="none">Once</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                    </select>
+                  </>
+                ) : (
+                  <>
+                    <span className="todo-text">{todo.text}</span>
+                    {todo.tag && (
+                      <span className="due-date">Tag: {todo.tag}</span>
+                    )}
+                    {todo.dueDate && (
+                      <span className="due-date">
+                        Due: {formatDate(todo.dueDate)}
+                      </span>
+                    )}
+                  </>
                 )}
               </div>
+              <button
+                onClick={() => (editingId === todo.id ? saveEdit(todo.id) : startEdit(todo))}
+                className="delete-button"
+                aria-label="Edit todo"
+              >
+                {editingId === todo.id ? 'Save' : 'Edit'}
+              </button>
+              {editingId === todo.id && (
+                <button className="delete-button" onClick={cancelEdit}>Cancel</button>
+              )}
               <button
                 onClick={() => deleteTodo(todo.id)}
                 className="delete-button"
