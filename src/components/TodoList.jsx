@@ -73,6 +73,40 @@ function SubtaskList({ todoId, subtasks, onAddSubtask, onToggleSubtask, onDelete
   );
 }
 
+function Alert({ message, type = 'success', onConfirm, onCancel }) {
+  return (
+    <div className="alert-overlay">
+      <div className={`alert alert-${type}`}>
+        <div className="alert-icon">
+          {type === 'warning' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️'}
+        </div>
+        <div className="alert-content">
+          <h3 className="alert-title">
+            {type === 'warning' ? '⚠️ Irreversible Action!' : '🎉 Task Complete!'}
+          </h3>
+          <p className="alert-message">{message}</p>
+          <div className="alert-actions">
+            <button 
+              className="alert-button alert-confirm"
+              onClick={onConfirm}
+            >
+              {type === 'warning' ? 'Yes, mark all complete' : 'Got it!'}
+            </button>
+            {onCancel && (
+              <button 
+                className="alert-button alert-cancel"
+                onClick={onCancel}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ColorSchemeSelector() {
   const colorSchemes = [
     { name: 'blue', color: '#3b82f6' },
@@ -120,6 +154,8 @@ function TodoList() {
   });
   const [inputValue, setInputValue] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [alert, setAlert] = useState(null);
+  const [pendingToggleTodo, setPendingToggleTodo] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
@@ -149,9 +185,74 @@ function TodoList() {
   };
 
   const toggleTodo = (id) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    // If the todo is already completed, allow unchecking without any prompts
+    if (todo.completed) {
+      setTodos(todos.map(todo => 
+        todo.id === id ? { ...todo, completed: false } : todo
+      ));
+      return;
+    }
+
+    // For incomplete todos, check if there are subtasks to handle
+    const hasSubtasks = todo.subtasks && todo.subtasks.length > 0;
+    const hasIncompleteSubtasks = hasSubtasks && todo.subtasks.some(st => !st.completed);
+
+    if (hasIncompleteSubtasks) {
+      setPendingToggleTodo(id);
+      setAlert({
+        type: 'warning',
+        message: `This will mark "${todo.text}" and all ${todo.subtasks.length} subtasks as complete. This action cannot be undone.`
+      });
+    } else {
+      completeTodoAndSubtasks(id);
+    }
+  };
+
+  const completeTodoAndSubtasks = (id) => {
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    setTodos(todos.map(todo => {
+      if (todo.id === id) {
+        const updatedTodo = { ...todo, completed: !todo.completed };
+        // When marking as complete, also complete all subtasks
+        if (!todo.completed) {
+          updatedTodo.subtasks = todo.subtasks.map(subtask => ({
+            ...subtask,
+            completed: true
+          }));
+        }
+        // When unmarking (marking as incomplete), don't change subtask states
+        return updatedTodo;
+      }
+      return todo;
+    }));
+    
+    // Only show success message when marking as complete
+    if (!todo.completed) {
+      setAlert({
+        type: 'success',
+        message: `🎉 Task completed successfully! All subtasks have been marked as complete.`
+      });
+    }
+    
+    setPendingToggleTodo(null);
+  };
+
+  const handleAlertConfirm = () => {
+    if (alert?.type === 'warning') {
+      completeTodoAndSubtasks(pendingToggleTodo);
+    } else {
+      setAlert(null);
+    }
+  };
+
+  const handleAlertCancel = () => {
+    setAlert(null);
+    setPendingToggleTodo(null);
   };
 
   const deleteTodo = (id) => {
@@ -225,7 +326,19 @@ function TodoList() {
 
   return (
     <div className="todo-container">
-      <h1>Todo List</h1>
+      {alert && (
+        <Alert
+          message={alert.message}
+          type={alert.type}
+          onConfirm={handleAlertConfirm}
+          onCancel={alert.type === 'warning' ? handleAlertCancel : undefined}
+        />
+      )}
+      <h1 className="app-title">
+        <span className="title-icon">✨</span>
+        <span className="title-text">My Beautiful Todo List</span>
+        <span className="title-icon">✨</span>
+      </h1>
       
       <form onSubmit={handleSubmit} className="todo-form">
         <input
