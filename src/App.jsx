@@ -9,6 +9,20 @@ function App() {
     return 'system'
   })
 
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      setMousePosition({ x: event.clientX, y: event.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {
@@ -52,7 +66,13 @@ function App() {
   }
 
   return (
-    <div className="app">
+    <div 
+      className="app" 
+      style={{ 
+        '--mouse-x': `${mousePosition.x}px`, 
+        '--mouse-y': `${mousePosition.y}px` 
+      }}
+    >
       <button 
         onClick={() => setTheme(getNextTheme())} 
         className="theme-toggle"

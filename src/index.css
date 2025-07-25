@@ -21,6 +21,7 @@
   --border-radius-sm: 8px;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --gradient-color-rgb: 0, 0, 0; /* Black for light mode */
 }
 
 :root[data-theme='dark'] {
@@ -44,6 +45,7 @@
   --border-radius-sm: 8px;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --gradient-color-rgb: 255, 255, 255; /* White for dark mode */
 }
 
 /* Color Schemes */
@@ -87,6 +89,10 @@
   --primary-hover: #4f46e5;
 }
 
+html, body {
+  height: 100%;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -95,7 +101,6 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
   min-height: 100vh;
@@ -108,7 +113,21 @@ body {
   position: relative;
   padding: 2rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-color) 0%, var(--hover-bg) 50%, var(--card-bg) 100%);
+  background-color: var(--bg-color); /* Base background color */
+  background-image: 
+    radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(var(--gradient-color-rgb), 0.05) 0%, transparent 15%),
+    radial-gradient(circle at calc(var(--mouse-x) * 0.5) calc(var(--mouse-y) * 0.5), rgba(var(--gradient-color-rgb), 0.03) 0%, transparent 20%),
+    radial-gradient(circle at calc(var(--mouse-x) * 1.5) calc(var(--mouse-y) * 1.5), rgba(var(--gradient-color-rgb), 0.02) 0%, transparent 25%);
+  background-size: 
+    100% 100%, /* Cover the entire area */
+    200% 200%, /* Larger gradient for subtle movement */
+    300% 300%; /* Even larger for very subtle movement */
+  background-repeat: no-repeat;
+  background-position: 
+    center center, /* Main gradient centered */
+    calc(50% + var(--mouse-x) * 0.05) calc(50% + var(--mouse-y) * 0.05), /* Subtle movement for second layer */
+    calc(50% + var(--mouse-x) * 0.02) calc(50% + var(--mouse-y) * 0.02); /* Very subtle movement for third layer */
+  transition: background-color 0.3s ease; /* Smooth transition for theme change */
 }
 
 .theme-toggle {
