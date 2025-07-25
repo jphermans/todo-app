@@ -135,7 +135,7 @@ function TodoList() {
     if (!inputValue.trim()) return;
     
     const newTodo = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       text: inputValue,
       completed: false,
       dueDate: dueDate || null,
@@ -164,7 +164,7 @@ function TodoList() {
     setTodos(todos.map(todo => {
       if (todo.id === todoId) {
         const newSubtask = {
-          id: Date.now(),
+          id: crypto.randomUUID(),
           text: subtaskText,
           completed: false,
           createdAt: new Date().toISOString()
@@ -279,25 +279,13 @@ function TodoList() {
                 ×
               </button>
               
-              {todo.subtasks && todo.subtasks.length > 0 && (
-                <SubtaskList
-                  todoId={todo.id}
-                  subtasks={todo.subtasks}
-                  onAddSubtask={addSubtask}
-                  onToggleSubtask={toggleSubtask}
-                  onDeleteSubtask={deleteSubtask}
-                />
-              )}
-              
-              {(!todo.subtasks || todo.subtasks.length === 0) && (
-                <SubtaskList
-                  todoId={todo.id}
-                  subtasks={[]}
-                  onAddSubtask={addSubtask}
-                  onToggleSubtask={toggleSubtask}
-                  onDeleteSubtask={deleteSubtask}
-                />
-              )}
+              <SubtaskList
+                todoId={todo.id}
+                subtasks={todo.subtasks || []}
+                onAddSubtask={addSubtask}
+                onToggleSubtask={toggleSubtask}
+                onDeleteSubtask={deleteSubtask}
+              />
             </li>
           ))}
         </ul>
