@@ -131,6 +131,20 @@ Your app will be running at [http://localhost:5173](http://localhost:5173) 🎉
 
 </div>
 
+## ✨ Extra Features
+
+<div align="center">
+
+| Extra | Description |
+|:------|:-----------|
+| 📝 **Subtasks** | Break down todos into smaller actionable items |
+| 🎨 **Color Scheme Selector** | Choose between multiple accent colors |
+| 🖱️ **Mouse Trail** | Playful cursor-following animation |
+| ⚠️ **Custom Alerts** | Friendly success and warning popups |
+| 👤 **Per-user Storage** | Sign in with a name to keep tasks separate |
+
+</div>
+
 ---
 
 ## 📱 Responsive Design
