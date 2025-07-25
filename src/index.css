@@ -720,9 +720,44 @@ body {
     margin-top: 1.5rem;
     padding: 1rem;
   }
-  
+
   .color-scheme-option {
     width: 28px;
     height: 28px;
   }
+}
+
+/* New features */
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.signin-form,
+.user-bar {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.progress-wrapper {
+  margin: 1rem 0;
+  background: var(--border-color);
+  height: 8px;
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  background: var(--primary-color);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.progress-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
 }
