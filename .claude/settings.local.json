@@ -10,7 +10,8 @@
       "Bash(rg:*)",
       "Bash(git push:*)",
       "Bash(npm install:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "WebFetch(domain:jphermans.github.io)"
     ],
     "deny": []
   }
