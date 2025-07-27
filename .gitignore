@@ -34,4 +34,4 @@ dist-ssr
 build/
 *.tgz
 *.tar.gz
-EOF < /dev/null
+EOF < /dev/null# Auto-commit enabled
