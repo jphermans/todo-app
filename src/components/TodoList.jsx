@@ -193,7 +193,19 @@ function TodoList() {
     
     const handleDataChange = (snapshot) => {
       const data = snapshot.val();
-      setTodos(data ? Object.values(data) : []);
+      if (data) {
+        const todosArray = Object.values(data).map(todo => ({
+          ...todo,
+          subtasks: todo.subtasks || [],
+          dueDate: todo.dueDate || null,
+          tag: todo.tag || '',
+          recurrence: todo.recurrence || 'none',
+          notified: todo.notified || false
+        }));
+        setTodos(todosArray);
+      } else {
+        setTodos([]);
+      }
     };
 
     onValue(todosRef, handleDataChange);
