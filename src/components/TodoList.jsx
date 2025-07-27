@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { database, ref, set, get, onValue, off } from '../firebase.js';
 
 function SubtaskItem({ subtask, todoId, onToggle, onDelete }) {
   return (
@@ -153,7 +154,7 @@ function ColorSchemeSelector({ progress = 0 }) {
 }
 
 function TodoList() {
-  const [user, setUser] = useState(() => localStorage.getItem('username') || '');
+  const [user, setUser] = useState('');
   const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
@@ -167,14 +168,52 @@ function TodoList() {
   const [editingId, setEditingId] = useState(null);
   const [editValues, setEditValues] = useState({ text: '', dueDate: '', tag: '', recurrence: 'none' });
 
+  // Load user from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem(`todos_${user || 'guest'}`);
-    setTodos(stored ? JSON.parse(stored) : []);
+    const storedUser = localStorage.getItem('username');
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
+
+  // Save user to localStorage when it changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('username', user);
+    } else {
+      localStorage.removeItem('username');
+    }
   }, [user]);
 
+  // Load todos from Firebase
   useEffect(() => {
-    localStorage.setItem(`todos_${user || 'guest'}`,
-      JSON.stringify(todos));
+    if (!user) return;
+
+    const todosRef = ref(database, `todos/${user}`);
+    
+    const handleDataChange = (snapshot) => {
+      const data = snapshot.val();
+      setTodos(data ? Object.values(data) : []);
+    };
+
+    onValue(todosRef, handleDataChange);
+
+    return () => {
+      const todosRef = ref(database, `todos/${user}`);
+      off(todosRef, 'value', handleDataChange);
+    };
+  }, [user]);
+
+  // Save todos to Firebase
+  useEffect(() => {
+    if (!user) return;
+
+    const todosRef = ref(database, `todos/${user}`);
+    const todosObject = {};
+    todos.forEach(todo => {
+      todosObject[todo.id] = todo;
+    });
+    set(todosRef, todosObject);
   }, [todos, user]);
 
   useEffect(() => {

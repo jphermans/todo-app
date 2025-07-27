@@ -19,7 +19,7 @@
 
 | 🎨 **Theme System** | ✅ **Todo Management** | 🔔 **Smart Notifications** | 💾 **Persistent Storage** | 📊 **Progress Tracking** | 🔍 **Filtering/Sorting** | 🏷️ **Tags** | ♻️ **Recurring Tasks** | 👤 **Account Sync** | 📴 **Offline Mode** |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| Automatic dark/light mode switching with manual override | Add, edit, complete and delete todos with due dates | Browser notifications for due tasks | LocalStorage per user account | Percentage bar of completed tasks | Filter by status and sort by date | Organize todos with optional tags | Daily, weekly or monthly recurrence | Optional sign in to sync tasks locally | Use the app even when offline |
+| Automatic dark/light mode switching with manual override | Add, edit, complete and delete todos with due dates | Browser notifications for due tasks | Firebase Realtime Database with cloud sync | Percentage bar of completed tasks | Filter by status and sort by date | Organize todos with optional tags | Daily, weekly or monthly recurrence | Sign in to sync across devices | Use the app even when offline |
 
 </div>
 
@@ -66,7 +66,7 @@ This release introduces a basic service worker to cache the application shell so
 ![ESLint](https://img.shields.io/badge/ESLint-Code%20Quality-red?logo=eslint&style=flat-square)
 
 ### Storage
-![LocalStorage](https://img.shields.io/badge/LocalStorage-Persistent-orange?style=flat-square)
+![Firebase](https://img.shields.io/badge/Firebase-Realtime%20Database-orange?style=flat-square)
 
 </div>
 
@@ -77,6 +77,36 @@ This release introduces a basic service worker to cache the application shell so
 ### Prerequisites
 - 📦 **Node.js** (v16 or higher)
 - 🔧 **npm** or **yarn**
+- 🔥 **Firebase Account** (free tier)
+
+### Firebase Setup (Required)
+
+1. **Create Firebase Project**
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Click "Create Project" → Name it "todo-app-{yourname}"
+   - Enable **Realtime Database**
+   - Go to **Rules** tab and set:
+   ```json
+   {
+     "rules": {
+       "todos": {
+         "$user": {
+           ".read": true,
+           ".write": true
+         }
+       }
+     }
+   }
+   ```
+
+2. **Get Firebase Config**
+   - Go to **Project Settings** (gear icon)
+   - Click **Add app** → **Web** → Register
+   - Copy the configuration object
+   - Open `src/firebase.js` and replace:
+     - `YOUR_API_KEY` → your actual apiKey
+     - `YOUR_PROJECT_ID` → your actual projectId
+     - etc.
 
 ### Quick Start
 
@@ -91,6 +121,8 @@ cd todo-app
 
 # Install dependencies
 npm install
+
+# Configure Firebase (edit src/firebase.js with your config)
 
 # Start development server
 npm run dev
@@ -141,7 +173,7 @@ Your app will be running at [http://localhost:5173](http://localhost:5173) 🎉
 | 🎨 **Color Scheme Selector** | Choose between multiple accent colors |
 | 🖱️ **Mouse Trail** | Playful cursor-following animation |
 | ⚠️ **Custom Alerts** | Friendly success and warning popups |
-| 👤 **Per-user Storage** | Sign in with a name to keep tasks separate |
+| 👤 **Per-user Storage** | Sign in to sync across all devices |
 
 </div>
 
