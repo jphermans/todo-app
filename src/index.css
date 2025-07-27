@@ -111,7 +111,7 @@ body {
 
 .app {
   position: relative;
-  padding: 2rem;
+  padding: 0.5rem;
   min-height: 100vh;
   background-color: var(--bg-color); /* Base background color */
   background-image: 
@@ -162,10 +162,10 @@ body {
 }
 
 .todo-container {
-  width: 90%;
-  max-width: 520px;
-  margin: 4rem auto;
-  padding: 2.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 1rem auto;
+  padding: 1rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--border-radius);

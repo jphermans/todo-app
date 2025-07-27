@@ -213,6 +213,13 @@ function TodoList() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!user) {
+      setAlert({
+        type: 'warning',
+        message: 'Please sign in with your name before adding tasks.'
+      });
+      return;
+    }
     if (!inputValue.trim()) return;
 
     const newTodo = {
@@ -464,17 +471,31 @@ function TodoList() {
 
       {!user ? (
         <form className="signin-form" onSubmit={(e) => { e.preventDefault(); if (usernameInput.trim()) { setUser(usernameInput.trim()); setUsernameInput(''); } }}>
-          <input className="todo-input" value={usernameInput} onChange={(e) => setUsernameInput(e.target.value)} placeholder="Enter your name" />
-          <button type="submit" className="add-button">Sign In</button>
+          <h2>Welcome to Todo App</h2>
+          <p>Please enter your name to get started</p>
+          <input 
+            className="todo-input" 
+            value={usernameInput} 
+            onChange={(e) => setUsernameInput(e.target.value)} 
+            placeholder="Enter your name" 
+            required
+            minLength={1}
+            maxLength={50}
+          />
+          <button type="submit" className="add-button">Get Started</button>
+          <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Developed by <strong>JPHsystems</strong>
+          </p>
         </form>
       ) : (
         <div className="user-bar">
-          <span>Signed in as {user}</span>
+          <span>Welcome, {user}!</span>
           <button className="delete-button" onClick={() => { setUser(''); }}>Sign Out</button>
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="todo-form">
+      {user && (
+        <form onSubmit={handleSubmit} className="todo-form">
         <input
           type="text"
           value={inputValue}
@@ -509,7 +530,9 @@ function TodoList() {
           <button type="submit" className="add-button">Add</button>
         </div>
       </form>
+      )}
 
+      {user && (
       <div className="filter-bar">
         <select value={filter} onChange={(e) => setFilter(e.target.value)} className="date-input">
           <option value="all">All</option>
@@ -524,7 +547,7 @@ function TodoList() {
 
       {todos.length === 0 ? (
         <div className="empty-state">
-          <p>No todos yet. Add one above to get started!</p>
+          <p>{!user ? 'Sign in to start adding tasks!' : 'No todos yet. Add one above to get started!'}</p>
         </div>
       ) : (
         <ul className="todo-list">
@@ -616,7 +639,9 @@ function TodoList() {
         </ul>
       )}
 
-      <ColorSchemeSelector progress={progress} />
+  {user && (
+        <ColorSchemeSelector progress={progress} />
+      )}
     </div>
   );
 }
