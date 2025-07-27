@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
 import TodoList from './components/TodoList'
 import MouseTrail from './components/MouseTrail'
+import { database, ref, set, onValue, off } from './firebase.js'
 
 function App() {
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme) return savedTheme
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark'
-    return 'system'
-  })
-
+  const [theme, setTheme] = useState('system')
+  const [colorScheme, setColorScheme] = useState('blue')
+  const [user, setUser] = useState('')
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isOnline, setIsOnline] = useState(navigator.onLine)
 
@@ -51,6 +48,45 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleChange)
   }, [theme])
 
+  // Load user preferences from localStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem('username')
+    if (savedUser) {
+      setUser(savedUser)
+    }
+  }, [])
+
+  // Load user preferences from Firebase
+  useEffect(() => {
+    if (!user) return
+
+    const prefsRef = ref(database, `preferences/${user}`)
+    
+    const handlePrefsChange = (snapshot) => {
+      const data = snapshot.val()
+      if (data) {
+        setTheme(data.theme || 'system')
+        setColorScheme(data.colorScheme || 'blue')
+      }
+    }
+
+    onValue(prefsRef, handlePrefsChange)
+
+    return () => {
+      const prefsRef = ref(database, `preferences/${user}`)
+      off(prefsRef, 'value', handlePrefsChange)
+    }
+  }, [user])
+
+  // Save user preferences to Firebase
+  useEffect(() => {
+    if (!user) return
+
+    const prefsRef = ref(database, `preferences/${user}`)
+    set(prefsRef, { theme, colorScheme })
+  }, [theme, colorScheme, user])
+
+  // Apply theme and color scheme to document
   useEffect(() => {
     if (theme === 'system') {
       const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -58,8 +94,8 @@ function App() {
     } else {
       document.documentElement.setAttribute('data-theme', theme)
     }
-    localStorage.setItem('theme', theme)
-  }, [theme])
+    document.documentElement.setAttribute('data-color-scheme', colorScheme)
+  }, [theme, colorScheme])
 
   const getNextTheme = () => {
     const themes = ['system', 'light', 'dark']
@@ -78,6 +114,13 @@ function App() {
     }
   }
 
+  const colorSchemes = ['blue', 'green', 'purple', 'orange', 'pink', 'red', 'teal', 'indigo']
+
+  const getNextColorScheme = () => {
+    const currentIndex = colorSchemes.indexOf(colorScheme)
+    return colorSchemes[(currentIndex + 1) % colorSchemes.length]
+  }
+
   return (
     <div
       className="app"
@@ -91,13 +134,35 @@ function App() {
           Offline - changes will sync when connection is restored
         </div>
       )}
-      <button
-        onClick={() => setTheme(getNextTheme())}
-        className="theme-toggle"
-        aria-label={`Current theme: ${theme}. Click to change.`}
-      >
-        {getThemeIcon()}
-      </button>
+      <div className="settings-bar">
+        <button
+          onClick={() => setTheme(getNextTheme())}
+          className="theme-toggle"
+          aria-label={`Current theme: ${theme}. Click to change.`}
+        >
+          {getThemeIcon()}
+        </button>
+        <button
+          onClick={() => setColorScheme(getNextColorScheme())}
+          className="color-toggle"
+          aria-label={`Current color: ${colorScheme}. Click to change.`}
+          style={{
+            backgroundColor: `var(--primary-color)`,
+            color: 'white',
+            border: 'none',
+            borderRadius: '50%',
+            width: '32px',
+            height: '32px',
+            fontSize: '14px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          🎨
+        </button>
+      </div>
       <MouseTrail />
       <TodoList />
     </div>

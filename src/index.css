@@ -130,10 +130,17 @@ body {
   transition: background-color 0.3s ease; /* Smooth transition for theme change */
 }
 
-.theme-toggle {
+.settings-bar {
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 1000;
+}
+
+.theme-toggle,
+.color-toggle {
   width: 48px;
   height: 48px;
   display: flex;
@@ -147,18 +154,25 @@ body {
   box-shadow: var(--shadow-md);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
-  z-index: 1000;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover,
+.color-toggle:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
   border-color: var(--primary-color);
 }
 
-.theme-toggle:active {
+.theme-toggle:active,
+.color-toggle:active {
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
+}
+
+.color-toggle {
+  background: var(--primary-color);
+  color: white;
+  border: none;
 }
 
 .todo-container {
