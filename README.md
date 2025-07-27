@@ -156,6 +156,19 @@ Your app will be running at [http://localhost:5173](http://localhost:5173) 🎉
 - Consistent theming across all components
 - Easy theme switching without page reload
 
+### 🔥 Firebase Theme & Color Sync
+Your **theme preferences** (light/dark mode) and **color scheme** choices are automatically saved to **Firebase Realtime Database** and synced across all your devices!
+
+- 🌓 **Theme State** - Your choice of System/Light/Dark mode
+- 🎨 **Color Scheme** - Your selected accent color (Blue, Green, Purple, Orange, Pink, Red, Teal, Indigo)
+- 📊 **Real-time Sync** - Changes appear instantly on any device you're signed into
+- 🔒 **Per-user Storage** - Each user has their own theme preferences
+
+**How it works:**
+- When you change themes or colors, preferences are saved to Firebase
+- On any device, sign in with the same username to sync your personalized theme
+- No account required - just use your preferred username
+
 </div>
 
 ## ✨ Extra Features
