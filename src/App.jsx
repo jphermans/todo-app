@@ -9,31 +9,20 @@ function App() {
   const [user, setUser] = useState('')
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
-      setMousePosition({ x: event.clientX, y: event.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
+    // Load username from localStorage immediately
+    const savedUser = localStorage.getItem('username')
+    if (savedUser) {
+      setUser(savedUser)
     }
+    setIsLoading(false)
   }, [])
 
   useEffect(() => {
+    if (isLoading) return
+
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = () => {
       if (theme === 'system') {
@@ -45,126 +34,71 @@ function App() {
     }
 
     mediaQuery.addEventListener('change', handleChange)
+    handleChange() // Initial call
     return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [theme])
+  }, [theme, isLoading])
 
-  // Load user preferences from localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem('username')
-    if (savedUser) {
-      setUser(savedUser)
-    }
-  }, [])
-
-  // Load user preferences from Firebase
-  useEffect(() => {
-    if (!user) return
-
-    const prefsRef = ref(database, `preferences/${user}`)
-    
-    const handlePrefsChange = (snapshot) => {
-      const data = snapshot.val()
-      if (data) {
-        setTheme(data.theme || 'system')
-        setColorScheme(data.colorScheme || 'blue')
-      }
-    }
-
-    onValue(prefsRef, handlePrefsChange)
-
-    return () => {
-      const prefsRef = ref(database, `preferences/${user}`)
-      off(prefsRef, 'value', handlePrefsChange)
-    }
-  }, [user])
-
-  // Save user preferences to Firebase
-  useEffect(() => {
-    if (!user) return
-
-    const prefsRef = ref(database, `preferences/${user}`)
-    set(prefsRef, { theme, colorScheme })
-  }, [theme, colorScheme, user])
-
-  // Apply theme and color scheme to document
-  useEffect(() => {
-    if (theme === 'system') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
-    } else {
-      document.documentElement.setAttribute('data-theme', theme)
-    }
+    if (isLoading) return
     document.documentElement.setAttribute('data-color-scheme', colorScheme)
-  }, [theme, colorScheme])
+  }, [colorScheme, isLoading])
 
-  const getNextTheme = () => {
-    const themes = ['system', 'light', 'dark']
-    const currentIndex = themes.indexOf(theme)
-    return themes[(currentIndex + 1) % themes.length]
-  }
-
-  const getThemeIcon = () => {
-    switch (theme) {
-      case 'light':
-        return '☀️'
-      case 'dark':
-        return '🌙'
-      default:
-        return '🖥️'
+  const handleUsernameSubmit = (e) => {
+    e.preventDefault()
+    const username = e.target.username.value.trim()
+    if (username) {
+      setUser(username)
+      localStorage.setItem('username', username)
     }
   }
 
-  const colorSchemes = ['blue', 'green', 'purple', 'orange', 'pink', 'red', 'teal', 'indigo']
+  if (isLoading) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading...</div>
+  }
 
-  const getNextColorScheme = () => {
-    const currentIndex = colorSchemes.indexOf(colorScheme)
-    return colorSchemes[(currentIndex + 1) % colorSchemes.length]
+  if (!user) {
+    return (
+      <div className="app" style={{ padding: '20px', textAlign: 'center', minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <h1>🎯 Welcome to Todo App</h1>
+        <p>Enter a username to get started:</p>
+        <form onSubmit={handleUsernameSubmit} style={{ marginTop: '20px' }}>
+          <input
+            type="text"
+            name="username"
+            placeholder="Enter username"
+            maxLength={20}
+            style={{
+              padding: '10px',
+              fontSize: '16px',
+              borderRadius: '5px',
+              border: '1px solid #ccc',
+              marginRight: '10px'
+            }}
+            autoFocus
+          />
+          <button type="submit" style={{
+            padding: '10px 20px',
+            fontSize: '16px',
+            background: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}>
+            Start
+          </button>
+        </form>
+      </div>
+    )
   }
 
   return (
-    <div
-      className="app"
-      style={{
-        '--mouse-x': `${mousePosition.x}px`,
-        '--mouse-y': `${mousePosition.y}px`
-      }}
-    >
-      {!isOnline && (
-        <div className="offline-banner">
-          Offline - changes will sync when connection is restored
-        </div>
-      )}
-      <div className="settings-bar">
-        <button
-          onClick={() => setTheme(getNextTheme())}
-          className="theme-toggle"
-          aria-label={`Current theme: ${theme}. Click to change.`}
-        >
-          {getThemeIcon()}
-        </button>
-        <button
-          onClick={() => setColorScheme(getNextColorScheme())}
-          className="color-toggle"
-          aria-label={`Current color: ${colorScheme}. Click to change.`}
-          style={{
-            backgroundColor: `var(--primary-color)`,
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '32px',
-            height: '32px',
-            fontSize: '14px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          🎨
-        </button>
+    <div className="app">
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        <h1>✅ Todo App is Working!</h1>
+        <p>Welcome, {user}! Your app is now loaded.</p>
+        <TodoList />
       </div>
-      <MouseTrail />
-      <TodoList />
     </div>
   )
 }
