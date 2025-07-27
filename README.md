@@ -99,14 +99,17 @@ This release introduces a basic service worker to cache the application shell so
    }
    ```
 
-2. **Get Firebase Config**
+2. **Configure Environment Variables**
+   - Copy `.env.example` to `.env`
    - Go to **Project Settings** (gear icon)
-   - Click **Add app** → **Web** → Register
-   - Copy the configuration object
-   - Open `src/firebase.js` and replace:
-     - `YOUR_API_KEY` → your actual apiKey
-     - `YOUR_PROJECT_ID` → your actual projectId
-     - etc.
+   - Copy your Firebase configuration
+   - Update `.env` file with your actual values:
+   ```bash
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   VITE_FIREBASE_DATABASE_URL=https://your_project-default-rtdb.firebaseio.com
+   # ... etc
+   ```
 
 ### Quick Start
 
