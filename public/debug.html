@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug - Todo App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>🐛 Todo App Debug Page</h1>
+    
+    <div class="debug">
+        <h3>📊 Build Status</h3>
+        <p>Build: <span id="build-status">Checking...</span></p>
+        <p>Assets: <span id="assets-status">Checking...</span></p>
+    </div>
+    
+    <div class="debug">
+        <h3>🔥 Firebase Status</h3>
+        <p>Config: <span id="firebase-config">Checking...</span></p>
+    </div>
+    
+    <div class="debug">
+        <h3>🔗 Links to Check</h3>
+        <ul>
+            <li><a href="/todo-app/assets/index-DjIvjxwf.js">Main JS file</a></li>
+            <li><a href="/todo-app/assets/index-DSENumfy.css">CSS file</a></li>
+            <li><a href="/todo-app/icon.png">Icon file</a></li>
+        </ul>
+    </div>
+    
+    <div class="debug">
+        <h3>🔍 Troubleshooting Steps</h3>
+        <ol>
+            <li>Open browser console (F12 → Console)</li>
+            <li>Check for 404 errors on asset files</li>
+            <li>Look for Firebase initialization errors</li>
+            <li>Verify GitHub Secrets are configured</li>
+        </ol>
+    </div>
+</body>
+</html>
