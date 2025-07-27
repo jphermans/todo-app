@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { database, ref, set, get, onValue, off } from '../firebase.js';
+import { database, ref, set, onValue, off } from '../firebase.js';
 
 function SubtaskItem({ subtask, todoId, onToggle, onDelete }) {
   return (
