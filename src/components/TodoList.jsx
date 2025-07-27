@@ -157,7 +157,7 @@ function TodoList() {
   const [todos, setTodos] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [usernameInput, setUsernameInput] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [dueDate, setDueDate] = useState(new Date().toISOString().split('T')[0]);
   const [alert, setAlert] = useState(null);
   const [pendingToggleTodo, setPendingToggleTodo] = useState(null);
   const [tag, setTag] = useState('');
