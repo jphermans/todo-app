@@ -544,6 +544,7 @@ function TodoList() {
           <option value="due">Due Date</option>
         </select>
       </div>
+      )}
 
       {todos.length === 0 ? (
         <div className="empty-state">
