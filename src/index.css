@@ -995,6 +995,37 @@ select {
   align-items: center;
 }
 
+.signin-input {
+  flex: 1;
+  min-height: 48px;
+  width: 100%;
+  max-width: 400px;
+  padding: clamp(0.75rem, 2.5vw, 0.875rem) clamp(0.75rem, 2.5vw, 1rem);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+  color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.signin-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+@media (max-width: 640px) {
+  .signin-input {
+    max-width: 100%;
+  }
+  
+  .signin-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .progress-wrapper {
   margin: 1rem 0;
   background: var(--border-color);

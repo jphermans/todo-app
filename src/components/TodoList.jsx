@@ -471,10 +471,8 @@ function TodoList() {
 
       {!user ? (
         <form className="signin-form" onSubmit={(e) => { e.preventDefault(); if (usernameInput.trim()) { setUser(usernameInput.trim()); setUsernameInput(''); } }}>
-          <h2>Welcome to Todo App</h2>
-          <p>Please enter your name to get started</p>
           <input 
-            className="todo-input" 
+            className="signin-input" 
             value={usernameInput} 
             onChange={(e) => setUsernameInput(e.target.value)} 
             placeholder="Enter your name" 
@@ -482,10 +480,7 @@ function TodoList() {
             minLength={1}
             maxLength={50}
           />
-          <button type="submit" className="add-button">Get Started</button>
-          <p style={{ marginTop: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Developed by <strong>JPHsystems</strong>
-          </p>
+          <button type="submit" className="add-button">Get Started - JPHsystems</button>
         </form>
       ) : (
         <div className="user-bar">
